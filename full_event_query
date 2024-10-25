@@ -1,0 +1,19 @@
+# Define target date and time for filtering events
+target_datetime="2024-03-26T15:54:00Z"
+event_types=(CommitCommentEvent CreateEvent DeleteEvent ForkEvent GollumEvent IssueCommentEvent IssuesEvent MemberEvent PublicEvent PullRequestEvent PullRequestReviewEvent PullRequestReviewCommentEvent PullRequestReviewThreadEvent PushEvent ReleaseEvent SponsorshipEvent WatchEvent)
+
+# Initialize total event counter
+total_events=0
+
+# Loop through event types and count each individually
+for event in "${event_types[@]}"; do
+  count=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+         -H "Accept: application/vnd.github.v3+json" \
+         "https://api.github.com/events" | jq --arg event "$event" --arg date "$target_datetime" \
+         '[.[] | select(.type == $event and .created_at < $date)] | length')
+  
+  echo "Count of $event up to $target_datetime: $count"
+  total_events=$((total_events + count))
+done
+
+echo "Total GitHub Events as of $target_datetime: $total_events"
