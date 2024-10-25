@@ -1,0 +1,32 @@
+# Set target date and time (March 26, 2024, at 3:54 PM UTC)
+target_datetime="2024-03-26T15:54:00Z"
+
+# Count commits up to target date and time
+commit_count=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+     -H "Accept: application/vnd.github.v3+json" \
+     "https://api.github.com/search/commits?q=committer-date:<${target_datetime}" | jq '.total_count')
+
+# Count issues (including pull requests) up to target date and time
+issue_count=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+     -H "Accept: application/vnd.github.v3+json" \
+     "https://api.github.com/search/issues?q=created:<${target_datetime}" | jq '.total_count')
+
+# Count repositories created up to target date and time
+repo_count=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+     -H "Accept: application/vnd.github.v3+json" \
+     "https://api.github.com/search/repositories?q=created:<${target_datetime}" | jq '.total_count')
+
+# Count stars (repository stargazing events) up to target date and time
+star_count=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+     -H "Accept: application/vnd.github.v3+json" \
+     "https://api.github.com/search/repositories?q=stars:>=0+created:<${target_datetime}" | jq '.total_count')
+
+# Count forks (repository forks) up to target date and time
+fork_count=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+     -H "Accept: application/vnd.github.v3+json" \
+     "https://api.github.com/search/repositories?q=fork:true+created:<${target_datetime}" | jq '.total_count')
+
+# Aggregate all event counts to estimate the total GitHub events
+total_events=$((commit_count + issue_count + repo_count + star_count + fork_count))
+
+echo "Estimated Total GitHub Events as of $target_datetime: $total_events"
