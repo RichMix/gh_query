@@ -1,0 +1,18 @@
+# Count commits up to 3:54 PM UTC on March 26, 2024
+commit_count=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+     -H "Accept: application/vnd.github.v3+json" \
+     "https://api.github.com/search/commits?q=committer-date:<2024-03-26T15:54:00Z" | jq '.total_count')
+
+# Count issues up to 3:54 PM UTC on March 26, 2024
+issue_count=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+     -H "Accept: application/vnd.github.v3+json" \
+     "https://api.github.com/search/issues?q=created:<2024-03-26T15:54:00Z" | jq '.total_count')
+
+# Count repositories created up to 3:54 PM UTC on March 26, 2024
+repo_count=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+     -H "Accept: application/vnd.github.v3+json" \
+     "https://api.github.com/search/repositories?q=created:<2024-03-26T15:54:00Z" | jq '.total_count')
+
+# Sum the counts as an estimated total of GitHub events
+total_events=$((commit_count + issue_count + repo_count))
+echo "Estimated GitHub Events as of 3:54 PM UTC on March 26, 2024: $total_events"
